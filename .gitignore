@@ -1,0 +1,23 @@
+# Ignore datasets and model artifacts
+data/
+artifacts/
+
+# Python cache / temp files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual envs
+.venv/
+env/
+venv/
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# OS junk
+.DS_Store

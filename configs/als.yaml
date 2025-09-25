@@ -1,0 +1,26 @@
+data:
+  ratings: data/ml-25m/ratings.csv
+  user_col: userId
+  item_col: movieId
+  rating_col: rating
+
+  min_user_interactions: 2
+  min_item_interactions: 2
+
+model:
+  factors: 64
+  regularization: 0.1
+  iterations: 20
+  seed: 42
+
+output:
+  artifacts_dir: artifacts/als
+
+  # file names for np.save()
+  user_factors: user_factors.npy
+  item_factors: item_factors.npy
+  user_ids: user_ids.npy
+  item_ids: item_ids.npy
+
+  # optional extra
+  logs_dir: logs/train_als

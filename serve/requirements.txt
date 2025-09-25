@@ -1,0 +1,7 @@
+numpy
+scipy
+lightfm
+pandas
+fastapi
+uvicorn[standard]
+joblib

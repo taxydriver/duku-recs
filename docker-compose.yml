@@ -1,0 +1,65 @@
+services:
+  train:
+    build:
+      context: .
+      dockerfile: docker/train.Dockerfile
+    volumes:
+      - ./data:/app/data:ro
+      - ./configs:/app/configs:ro
+      - ./artifacts:/app/artifacts
+    command: ["python", "train/train_als.py", "--config", "configs/train.yaml"]
+
+  serve:
+    build:
+      context: .                # root of repo
+      dockerfile: docker/serve.Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      MODEL_DIR: /app/artifacts/als
+      MOVIES_CSV: /app/data/ml-25m/movies.csv
+      FUZZY_THRESHOLD: "70"
+      SIM_METRIC: dot 
+      NO_COMPONENTS: "32"  
+    volumes:
+      - ./artifacts:/app/artifacts:ro
+      - ./data:/app/data:ro
+    command: uvicorn serve.app:app --host 0.0.0.0 --port 8000
+
+  train-lightfm:
+    build:
+      context: .
+      dockerfile: docker/train.Dockerfile
+    environment:
+      RATINGS_CSV: /app/data/ml-25m/ratings.csv
+      MODEL_DIR: /app/artifacts/lightfm
+      EPOCHS: "20"
+      NUM_THREADS: "4"
+      MIN_RATING_POS: "3.0"
+    volumes:
+      - ./data:/app/data:ro
+      - ./artifacts:/app/artifacts
+    command: ["python", "train/train_lightfm.py"]
+
+  serve-lightfm:
+    build:
+      context: .
+      dockerfile: docker/serve.Dockerfile
+    ports:
+      - "8001:8000"
+    environment:
+      MODEL_DIR: /app/artifacts/lightfm
+      MOVIES_CSV: /app/data/ml-25m/movies.csv
+      FUZZY_THRESHOLD: "70"
+      SIM_METRIC: "cosine"
+      MIN_LIKES_FOR_EMBED: "3"
+      CANDIDATE_POOL: "1200"
+      CANDIDATE_POOL_POP: "300"
+      CANDIDATE_POOL_SIM_PER_LIKE: "400"
+      BETA_BIAS: "0"
+      MMR_LAMBDA: "0.25"
+      PER_GENRE_CAP: "2"
+    volumes:
+      - ./artifacts:/app/artifacts:ro
+      - ./data:/app/data:ro
+    command: uvicorn serve.app_lightfm:app --host 0.0.0.0 --port 8000

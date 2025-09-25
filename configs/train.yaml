@@ -1,0 +1,17 @@
+data:
+  ratings_csv: data/ratings.csv
+  min_user_interactions: 1
+  min_item_interactions: 1
+
+model:
+  factors: 64
+  regularization: 0.01
+  iterations: 20
+  use_cg: true
+
+output:
+  dir: artifacts
+  user_factors: "user_factors.npy"
+  item_factors: "item_factors.npy"
+  user_ids: "user_ids.npy"
+  item_ids: "item_ids.npy"
