@@ -1,7 +1,6 @@
-numpy
-scipy
-lightfm
-pandas
 fastapi
-uvicorn[standard]
-joblib
+uvicorn
+numpy
+orjson
+transformers<5
+huggingface_hub==0.13.4

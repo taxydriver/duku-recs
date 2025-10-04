@@ -1,6 +1,13 @@
 # Ignore datasets and model artifacts
 data/
 artifacts/
+model/
+
+
+img.tar
+input.json
+payload.json
+container.json
 
 # Python cache / temp files
 __pycache__/

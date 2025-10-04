@@ -63,3 +63,49 @@ services:
       - ./artifacts:/app/artifacts:ro
       - ./data:/app/data:ro
     command: uvicorn serve.app_lightfm:app --host 0.0.0.0 --port 8000
+
+  hydrate-tmdb:
+    build:
+      context: .
+      dockerfile: docker/hydrate.Dockerfile
+    environment:
+      - TMDB_API_KEY=${TMDB_API_KEY}
+    volumes:
+      - ./tools:/app/tools:ro
+      - ./data:/app/data               # writeable (no :ro)
+    command: >
+      python tools/hydrate_tmdb_min.py data/ids/movie_ids.json.gz 1000
+    # ↑ change 1000 → (omit) for a full run
+
+  embed-content:
+    build:
+      context: .
+      dockerfile: docker/embed.Dockerfile
+    volumes:
+      - ./tools:/app/tools:ro
+      - ./data:/app/data:ro
+      - ./artifacts:/app/artifacts
+    command: >
+      python tools/embed_movies.py data/movies.ndjson artifacts
+
+  serve-content:
+    build:
+      context: .
+      dockerfile: docker/serve.Dockerfile
+    ports:
+      - "8002:8000"
+    environment:
+      CONTENT_ITEM_IDS: /app/artifacts/item_ids.npy
+      CONTENT_VECS: /app/artifacts/item_vecs_norm.npy
+      CONTENT_META: /app/artifacts/meta.json
+      # lightweight knobs (optional)
+      LANG_BOOST: "0.08"
+      GENRE_BOOST: "0.05"
+      MMR_LAMBDA: "0.75"
+      TOPK: "40"
+    volumes:
+      - ./artifacts:/app/artifacts:ro
+      - ./serve:/app/serve:ro
+    command: uvicorn serve.app_content:app --host 0.0.0.0 --port 8000
+
+    
